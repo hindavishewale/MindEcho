@@ -94,7 +94,7 @@ const Dashboard = () => {
             Trimodal AI Emotion Intelligence
           </h1>
           <p className="text-xl text-gray-400 max-w-3xl mx-auto mb-10">
-            Advanced trimodal AI framework for emotion-aware interview analysis and mental wellness insights.
+            Advanced trimodal AI framework for emotion-aware interview analysis.
             Real-time face, voice, and text emotion detection powered by deep learning.
           </p>
           <div className="flex gap-4 justify-center">
