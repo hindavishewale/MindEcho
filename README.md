@@ -22,8 +22,6 @@
 - 📤 **Video Upload & Analysis**: Process recorded interviews (MP4, AVI)
 - 📊 **Emotion Timeline**: Interactive visualization of emotion changes
 - 🔍 **Emotion Search**: Find specific emotions across sessions
-- 💚 **Wellness Analytics**: Track mental health trends with charts
-- 🎨 **Modern UI**: Professional dark theme with glassmorphism
 
 ---
 
@@ -141,10 +139,6 @@ Database (MongoDB)
 - Grid view of results
 - Timestamp navigation
 
-### 6. Wellness Analytics (`/wellness-analytics`)
-- Wellness score trends
-- Emotion distribution pie chart
-- Mental health tracking
 
 ---
 
@@ -176,16 +170,6 @@ Database (MongoDB)
 - **Input:** Face + Voice + Text embeddings
 - **Output:** 7 unified emotions
 - **Accuracy:** ~72% (combined)
-
----
-
-## 🎨 UI Design
-
-- **Theme:** Modern dark theme with gradients
-- **Effects:** Glassmorphism, smooth animations
-- **Typography:** Inter font family
-- **Components:** Emotion badges, interactive charts
-- **Responsive:** Mobile-friendly design
 
 ---
 
@@ -290,22 +274,12 @@ Emotion/
 
 ## 🚀 Future Enhancements
 
-- [ ] Real-time streaming analysis
-- [ ] User authentication system
-- [ ] Video history and management
 - [ ] Export reports (PDF)
-- [ ] Cloud deployment (AWS/Azure)
 - [ ] Mobile app
-- [ ] Advanced analytics dashboard
 - [ ] Multi-language support
 
 ---
 
-## 📄 License
-
-MIT License
-
----
 
 ## 🎉 System Status
 
@@ -315,11 +289,5 @@ MIT License
 ✅ **Voice Model:** Trained & Loaded  
 ✅ **Text Model:** Trained & Loaded  
 ✅ **Fusion Model:** Loaded  
-✅ **All Pages:** Designed & Functional  
-✅ **Modern UI:** Complete  
-
-**Your Trimodal Emotion Intelligence System is READY! 🚀**
-
-For detailed instructions, see [RESEARCH_PAPER.md](RESEARCH_PAPER.md)
 
 **GitHub:** https://github.com/hindavishewale/MindEcho
