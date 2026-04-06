@@ -427,6 +427,6 @@ The system is applicable to mental health monitoring, HR interview analysis, cus
 
 ---
 
-**Code Availability:** Source code available at: [GitHub Repository Link]
+**Code Availability:** Source code available at: [https://github.com/hindavishewale/MindEcho](https://github.com/hindavishewale/MindEcho)
 
 **END OF PAPER**

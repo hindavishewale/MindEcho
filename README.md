@@ -320,4 +320,6 @@ MIT License
 
 **Your Trimodal Emotion Intelligence System is READY! 🚀**
 
-For detailed instructions, see [FINAL_GUIDE.md](FINAL_GUIDE.md)
+For detailed instructions, see [RESEARCH_PAPER.md](RESEARCH_PAPER.md)
+
+**GitHub:** https://github.com/hindavishewale/MindEcho
