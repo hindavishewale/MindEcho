@@ -1,0 +1,56 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+*.egg-info/
+dist/
+build/
+
+# Models — ignore large trained weights except fusion
+*.pt
+*.h5
+*.pkl
+face_emotion_model.pth
+voice_emotion_model.pth
+text_emotion_model.pth
+# Keep models/fusion/fusion_model.pth — do NOT ignore it
+
+# Uploads — ignore all user uploaded files
+backend/uploads/*.mp4
+backend/uploads/*.avi
+backend/uploads/*.wav
+backend/uploads/*.webm
+
+# Environment secrets
+.env
+.env.local
+.env.production
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+frontend/build/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Datasets (too large for GitHub)
+datasets/
