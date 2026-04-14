@@ -282,6 +282,156 @@ async def start_live_interview():
     
     return {"session_id": session_id, "status": "active", "message": "Live interview session started"}
 
+@app.post("/api/evaluate_answer")
+async def evaluate_answer(request: dict):
+    question        = request.get("question", "")
+    question_type   = request.get("question_type", "")
+    overall_emotion = request.get("overall_emotion", "neutral")
+    session_id      = request.get("session_id", "")
+
+    # Fetch actual segments from DB using session_id
+    segments = []
+    if session_id:
+        db = get_database()
+        analysis = await db.analyses.find_one({"session_id": session_id})
+        if analysis:
+            segments = analysis.get("segments", [])
+
+    # Aggregate transcription
+    transcription = " ".join(s.get("transcription", "") for s in segments if s.get("transcription"))
+    word_count    = len(transcription.split()) if transcription else 0
+
+    # Filler word detection
+    fillers = ["um", "uh", "like", "you know", "basically", "literally", "actually", "so", "right"]
+    filler_count = sum(transcription.lower().count(f" {w} ") for w in fillers)
+
+    # Emotion confidence signals
+    face_confidences  = [s["face_emotion"]["confidence"]  for s in segments if s.get("face_emotion")]  or [0.5]
+    voice_confidences = [s["voice_emotion"]["confidence"] for s in segments if s.get("voice_emotion")] or [0.5]
+    avg_face_conf  = float(np.mean(face_confidences))
+    avg_voice_conf = float(np.mean(voice_confidences))
+
+    # Positive emotion ratio
+    positive_emotions = {"happy", "neutral", "surprise"}
+    fused_emotions = [s["fused_emotion"]["emotion"] for s in segments if s.get("fused_emotion")]
+    pos_ratio = sum(1 for e in fused_emotions if e in positive_emotions) / max(len(fused_emotions), 1)
+
+    # Score computation
+    confidence_score = round(min(10, max(1,
+        5 + (avg_face_conf - 0.5) * 4 + (avg_voice_conf - 0.5) * 4 + (pos_ratio - 0.5) * 2
+    )), 1)
+
+    has_intro     = any(w in transcription.lower() for w in ["i", "my", "we", "the", "in"])
+    has_structure = word_count > 30
+    has_result    = any(w in transcription.lower() for w in ["result", "outcome", "achieved", "learned", "resolved", "finally", "end"])
+    answer_quality_score = round(min(10, max(1,
+        (4 if has_intro else 2) +
+        (2 if has_structure else 0) +
+        (2 if has_result else 0) +
+        min(2, word_count / 60)
+    )), 1)
+
+    wpm = word_count / max(len(segments), 1) * 60
+    communication_score = round(min(10, max(1,
+        7 - filler_count * 0.5 +
+        (1 if 100 <= wpm <= 160 else -1) +
+        (1 if word_count > 50 else -1)
+    )), 1)
+
+    # Feedback
+    feedback = []
+    if not has_result:
+        feedback.append("Missing outcome/result — always conclude with what was achieved.")
+    if filler_count > 3:
+        feedback.append(f"Detected {filler_count} filler words — practice pausing instead of using fillers.")
+    if word_count < 30:
+        feedback.append("Answer too brief — aim for at least 60–90 words per response.")
+    if wpm > 170:
+        feedback.append("Speaking too fast — slow down for clarity.")
+    if confidence_score < 6:
+        feedback.append("Low confidence signals detected — maintain steady tone and eye contact.")
+    if not feedback:
+        feedback.append("Good response — maintain this structure and clarity.")
+
+    # Final emotion label
+    emotion_map = {
+        "happy": "confident", "neutral": "composed", "surprise": "engaged",
+        "sad": "low energy", "angry": "stressed", "fear": "nervous", "disgust": "uncomfortable"
+    }
+    final_emotion = emotion_map.get(overall_emotion, overall_emotion)
+
+    return {
+        "final_emotion": final_emotion,
+        "confidence_score": confidence_score,
+        "answer_quality_score": answer_quality_score,
+        "communication_score": communication_score,
+        "word_count": word_count,
+        "wpm": round(wpm),
+        "filler_count": filler_count,
+        "transcription": transcription,
+        "feedback": feedback[:3],
+    }
+
+
+@app.post("/api/interview_report")
+async def interview_report(request: dict):
+    evals = request.get("evaluations", [])
+    if not evals:
+        raise HTTPException(status_code=400, detail="No evaluations provided")
+
+    avg = lambda key: round(sum(e.get(key, 5) for e in evals) / len(evals), 1)
+    communication  = avg("communication_score")
+    confidence     = avg("confidence_score")
+    answer_quality = avg("answer_quality_score")
+
+    # Pattern detection across all answers
+    all_feedback   = [f for e in evals for f in e.get("feedback", [])]
+    total_fillers  = sum(e.get("filler_count", 0) for e in evals)
+    low_conf_count = sum(1 for e in evals if e.get("confidence_score", 5) < 6)
+    short_answers  = sum(1 for e in evals if e.get("word_count", 0) < 40)
+    missing_result = sum(1 for e in evals if any("outcome" in f or "result" in f for f in e.get("feedback", [])))
+
+    strengths, weak_areas, suggestions = [], [], []
+
+    if confidence >= 7:  strengths.append("Maintained consistent confidence across most answers")
+    if answer_quality >= 7: strengths.append("Answers showed good structure and relevant content")
+    if communication >= 7: strengths.append("Clear and articulate communication style")
+    if not strengths: strengths = ["Completed all interview questions", "Showed willingness to engage"]
+    strengths = strengths[:2]
+
+    if low_conf_count >= 2: weak_areas.append(f"Low confidence detected in {low_conf_count} answers — voice and facial signals")
+    if total_fillers > 5:   weak_areas.append(f"Excessive filler words ({total_fillers} total) across answers")
+    if short_answers >= 2:  weak_areas.append(f"{short_answers} answers were too brief — lacked depth")
+    if missing_result >= 2: weak_areas.append("Repeatedly missing outcome/result in behavioral answers")
+    if len(weak_areas) < 3: weak_areas.append("Answer structure inconsistent — some lacked clear conclusion")
+    weak_areas = weak_areas[:3]
+
+    if total_fillers > 5:   suggestions.append("Record yourself answering and count filler words — target zero.")
+    if missing_result >= 2: suggestions.append("Always end behavioral answers with a concrete result using the STAR method.")
+    if low_conf_count >= 2: suggestions.append("Practice power posing and deep breathing before interviews to boost vocal confidence.")
+    if short_answers >= 2:  suggestions.append("Aim for 90–120 second answers — use examples to add depth.")
+    if not suggestions:     suggestions.append("Continue practicing with timed mock interviews to maintain performance.")
+    suggestions = suggestions[:3]
+
+    overall = (communication + confidence + answer_quality) / 3
+    if overall >= 8:
+        summary = "Strong overall performance. Candidate demonstrates good communication and confidence. Minor refinements in structure will make answers more impactful."
+    elif overall >= 6:
+        summary = "Moderate performance with clear areas for improvement. Focus on answer structure, reducing fillers, and projecting more confidence through voice and posture."
+    else:
+        summary = "Significant improvement needed. Candidate should practice structured responses using STAR method and work on vocal confidence before the next interview."
+
+    return {
+        "communication": communication,
+        "confidence": confidence,
+        "answer_quality": answer_quality,
+        "strengths": strengths,
+        "weak_areas": weak_areas,
+        "suggestions": suggestions,
+        "summary": summary,
+    }
+
+
 @app.get("/api/health")
 async def health_check():
     return {"status": "healthy", "timestamp": datetime.utcnow().isoformat()}

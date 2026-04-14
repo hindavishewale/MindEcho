@@ -153,17 +153,17 @@ const Dashboard = () => {
             <div className="text-center">
               <div className="text-6xl mb-4">😊</div>
               <h4 className="text-xl font-semibold text-white mb-2">Face Emotion</h4>
-              <p className="text-gray-400">CNN-based facial expression analysis with 60%+ accuracy</p>
+              <p className="text-gray-400">Vision Transformer (ViT) — 7 emotions, ~85% accuracy on FER2013</p>
             </div>
             <div className="text-center">
               <div className="text-6xl mb-4">🎤</div>
               <h4 className="text-xl font-semibold text-white mb-2">Voice Emotion</h4>
-              <p className="text-gray-400">LSTM-based voice tone analysis using MFCC features</p>
+              <p className="text-gray-400">Wav2Vec2 — 4 emotions from raw 16kHz waveform, ~80% accuracy</p>
             </div>
             <div className="text-center">
               <div className="text-6xl mb-4">💬</div>
               <h4 className="text-xl font-semibold text-white mb-2">Text Emotion</h4>
-              <p className="text-gray-400">BERT-based sentiment analysis from speech-to-text</p>
+              <p className="text-gray-400">DistilRoBERTa — 7 emotions from Whisper transcription, ~80% accuracy</p>
             </div>
           </div>
         </div>

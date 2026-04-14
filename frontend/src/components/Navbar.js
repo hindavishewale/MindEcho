@@ -15,6 +15,7 @@ const Navbar = () => {
     { name: 'Timeline', path: '/emotion-timeline' },
     { name: 'Search', path: '/emotion-search' },
     { name: 'Models', path: '/models' },
+    { name: 'Evaluator', path: '/evaluator' },
   ];
 
   const isActive = (path) => location.pathname === path;

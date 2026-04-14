@@ -8,6 +8,7 @@ import UploadVideo from './pages/UploadVideo';
 import EmotionTimeline from './pages/EmotionTimeline';
 import EmotionSearch from './pages/EmotionSearch';
 import ModelsInfo from './pages/ModelsInfo';
+import InterviewEvaluator from './pages/InterviewEvaluator';
 import './index.css';
 
 function App() {
@@ -23,6 +24,7 @@ function App() {
             <Route path="/emotion-timeline" element={<EmotionTimeline />} />
             <Route path="/emotion-search" element={<EmotionSearch />} />
             <Route path="/models" element={<ModelsInfo />} />
+            <Route path="/evaluator" element={<InterviewEvaluator />} />
           </Routes>
         </div>
       </Router>

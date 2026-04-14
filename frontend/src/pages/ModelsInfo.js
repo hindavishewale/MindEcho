@@ -114,11 +114,11 @@ const models = [
     output: '7 unified emotions',
     emotions: ['Angry', 'Disgust', 'Fear', 'Happy', 'Sad', 'Surprise', 'Neutral'],
     architecture: [
-      { layer: 'Input Projections', detail: '3 × (128 → 256-d) with ReLU' },
-      { layer: 'Attention Scoring', detail: '3 scalar energies via W_a · h_i' },
-      { layer: 'Softmax Weights', detail: 'alpha = softmax([e_face, e_voice, e_text])' },
-      { layer: 'Weighted Sum', detail: 'h_fused = Σ alpha_i * h_i (256-d)' },
-      { layer: 'Output Head', detail: '256 → 7 (Softmax)' },
+      { layer: 'Input Projections', detail: '3 × (128 → 256-d) Linear + LayerNorm + GELU' },
+      { layer: 'Modality Gating', detail: 'x * sigmoid(Linear(x)) — suppresses noisy/missing modality' },
+      { layer: 'Cross-Modal Attention', detail: 'Each modality attends to the other two — 4 heads, MultiheadAttention + residual + LayerNorm' },
+      { layer: 'Learned Weights', detail: 'softmax(Linear(768→3)) → weighted sum → 256-d fused vector' },
+      { layer: 'Classification Head', detail: 'FC(768→512→256→7) + LayerNorm + GELU + Dropout → Softmax' },
     ],
     metrics: { accuracy: 72.4, precision: 71.8, recall: 72.4, f1: 72.1, auc: 91.2 },
     perClass: [
