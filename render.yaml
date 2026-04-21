@@ -1,0 +1,37 @@
+services:
+  - type: web
+    name: mindecho-backend
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: standard
+    disk:
+      name: mindecho-data
+      mountPath: /app/data
+      sizeGB: 1
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DB_PATH
+        value: /app/data/mindecho.db
+      - key: UPLOAD_DIR
+        value: /app/data/uploads
+      - key: MODEL_PATH
+        value: ./models
+
+  - type: web
+    name: mindecho-frontend
+    runtime: static
+    buildCommand: cd frontend && npm install && npm run build
+    staticPublishPath: ./frontend/build
+    pullRequestPreviewsEnabled: false
+    envVars:
+      - key: REACT_APP_API_URL
+        fromService:
+          name: mindecho-backend
+          type: web
+          property: host
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html

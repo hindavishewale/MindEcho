@@ -62,7 +62,7 @@ async def upload_video(file: UploadFile = File(...)):
             session_type="upload",
             status="processing"
         )
-        await db.sessions.insert_one(session.model_dump(by_alias=True, exclude={'id'}))
+        await db.sessions.insert_one(session.model_dump())
         
         return {"session_id": session_id, "status": "uploaded", "message": "Video uploaded successfully"}
     except Exception as e:
@@ -200,7 +200,7 @@ async def analyze_video(session_id: str):
             overall_emotion={"emotion": overall_emotion, "distribution": emotion_counts}
         )
         
-        await db.analyses.insert_one(analysis.model_dump(by_alias=True, exclude={'id'}))
+        await db.analyses.insert_one(analysis.model_dump())
         await db.sessions.update_one({"session_id": session_id}, {"$set": {"status": "completed"}})
         
         return {"session_id": session_id, "status": "completed", "overall_emotion": overall_emotion, "segments": len(segments)}
@@ -278,7 +278,7 @@ async def start_live_interview():
         session_type="live",
         status="active"
     )
-    await db.sessions.insert_one(session.model_dump(by_alias=True, exclude={'id'}))
+    await db.sessions.insert_one(session.model_dump())
     
     return {"session_id": session_id, "status": "active", "message": "Live interview session started"}
 
